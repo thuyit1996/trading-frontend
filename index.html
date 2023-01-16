@@ -25,6 +25,8 @@
 	<script
 src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 </script>
+<script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+
 	<link ref="stylesheet" href="public/css/outsite.css">
   <!-- Performance API Polyfills -->
   <script>
@@ -4264,6 +4266,9 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
     }
   </style>
 	<style>
+    .table-title.none {
+      display : none !important;
+    }
 		 .table-trading .table-title {
 			background: red;
     height: 75px;
@@ -4309,6 +4314,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 		 .table-content td {
 			text-align : center;
 			padding: 8px;
+			font-size: 0.8rem;
 		 }
 		 .table-content td {
 			background : #000;
@@ -4316,6 +4322,25 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 			font-weight: bold;
 			border: 1px solid #ffffff;
 		 }
+     .chart-section {
+    }
+     #leftChart,
+     #rightChart
+     {
+      padding-top: 20px;
+      padding-bottom: 20px;
+      width: 409px !important;
+      height: 215px !important;
+      float: left;
+      background: #ffffff;
+     }
+     #leftChart{
+      border-right: 1px solid;
+     }
+     #leftChart.hide,
+     #rightChart.hide {
+      display: none;
+     }
 		</style>
   <title>Trang chủ | Trading For A Living</title>
   <link rel="canonical" href="https://congnt91.wixsite.com/trading-for-a-living">
@@ -8267,11 +8292,14 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
                                                     <div id="comp-lcowm8762" class="KcpHeO tz5f0K comp-lcowm8762"
                                                       data-testid="richTextElement">
                                                       <div class="table-trading">
-																												<div style="background : red" class="table-title">
+																												<div style="background : red" class="table-title none">
 																														<p>BẢN TIN THỊ TRƯỜNG NGÀY 15/01/2023</p>
 																													</div>
 																											</div>
-																											<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                                                      <div class="chart-section">
+                                                        <canvas id="leftChart" class="hide" width="400" height="215" style="width:400px;height: 215px; float:left; max-width:600px"></canvas>
+                                                        <canvas id="rightChart" class="hide" style="width:400px; height: 215px; float:left ;max-width:600px"></canvas>
+                                                      </div>
                                                     </div>
                                                     
                                                   </div>
@@ -9262,10 +9290,62 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 
 <script>
 			$(document).ready(function(){
-				fetch('http://localhost:3000/trading/download').then(res => res.json()).then((data) => applyTable(data));
+				fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data));
 			});
+      function chart(id, labels, data){
+        console.log(id, labels, data);
+        const canvas = document.getElementById(id);
+        new Chart(canvas, {
+          type: 'pie',    
+          data: {
+            labels: labels,
+            datasets: [{
+              data,
+              backgroundColor: ['#FF6384', '#36A2EB','#FFCE56']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              labels: {
+                render: 'percentage',
+                fontColor: ['green', 'white', 'red'],
+                precision: 2
+              }
+            },
+          }
+        });        
+      }
+      function buildChart({left, right}) {
+        const labelsLeft = left.map(item => item.title);
+        const valueLeft = left.map(item => item.value);
+        const labelsRight = right.map(item => item.title);
+        const valueRight = right.map(item => item.value)
+        chart('leftChart', labelsLeft, valueLeft);
+        chart('rightChart', labelsRight, valueRight);
+      }
+      function formatDate(inputDate) {
+        let date, month, year;
+        date = inputDate.getDate();
+        month = inputDate.getMonth() + 1;
+        year = inputDate.getFullYear();
+
+          date = date
+              .toString()
+              .padStart(2, '0');
+
+          month = month
+              .toString()
+              .padStart(2, '0');
+
+        return `${date}/${month}/${year}`;
+      }
 			function applyTable(data){
 				const table = $('.table-trading');
+        const tableTitle = $('.table-title');
+        tableTitle.removeClass('none');
+        tableTitle.find('p').text(`BẢN TIN THỊ TRƯỜNG NGÀY ${formatDate(new Date())}`)
 				if(data?.length){
 					const content = data.map((item, index) => {
 						return `
@@ -9310,7 +9390,16 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 						`
 					})
 					table.append(content);
+          const leftChart = $('#leftChart');
+          const rightChart = $('#rightChart');
+          leftChart.removeClass('hide');
+          rightChart.removeClass('hide');
+          buildChart({
+            left: data?.[0]?.chartValues,
+            right: data?.[1]?.chartValues,
+          });
 				}
+
 				// table.append(`
 				// 	<div>
 				// 		<p>${}</p>	
@@ -9321,48 +9410,27 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 </script>
 
 <script>
-var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
-var yValues = [55, 49, 44, 24, 15];
-var barColors = [
-  "#b91d47",
-  "#00aba9",
-  "#2b5797",
-  "#e8c3b9",
-  "#1e7145"
-];
-
-new Chart("myChart", {
-  type: "outlabeledPie",
-  data: {
-    labels: ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE'],
-    datasets: [
-      {
-        backgroundColor: [
-          '#FF3784',
-          '#36A2EB',
-          '#4BC0C0',
-          '#F77825',
-          '#9966FF',
-        ],
-        data: [1, 2, 3, 4, 5],
-      },
-    ],
-  },
-  options: {
-    plugins: {
-      legend: false,
-      outlabels: {
-        text: '%l %p',
-        color: 'white',
-        stretch: 35,
-        font: {
-          resizable: true,
-          minSize: 12,
-          maxSize: 18,
-        },
-      },
+  var canvas = document.getElementById('myChart');
+  new Chart(canvas, {
+    type: 'pie',    
+    data: {
+      labels: ['January', 'February', 'March'],
+      datasets: [{
+        data: [50445, 33655, 15900],
+        backgroundColor: ['#FF6384', '#36A2EB','#FFCE56']
+      }]
     },
-  },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        labels: {
+          render: 'percentage',
+          fontColor: ['green', 'white', 'red'],
+          precision: 2
+        }
+      },
+    }
 });
 </script>
 
