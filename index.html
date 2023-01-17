@@ -9372,9 +9372,9 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 											 <td>${value.title}</td>
 											 <td>${value.now}</td>
 											 <td style='color: ${value.increment > 0 ? "green" : "red" }'>${value.increment?.toFixed(2)}</td>
-											 <td style='color: ${value.decrement > 0 ? "green" : "red" }'>${value.decrement?.toFixed(5)} %</td>
+											 <td style='color: ${value.decrement > 0 ? "green" : "red" }'>${value.decrement?.toFixed(2)} %</td>
 											 <td>${value.price}</td>
-											 <td style='color: ${value.gtgd > 0 ? "green" : "red" }'>${value.gtgd?.toFixed(6)}</td>
+											 <td style='color: ${value.gtgd > 0 ? "green" : "red" }'>${value.gtgd?.toFixed(2)}</td>
 											</tr>`).join('') : `
 											${item.rows?.data?.map(value => {
 												return `
@@ -9382,10 +9382,10 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 												<td>${value.title}</td>
 												<td>${value.now}</td>
 												<td style='color: ${value.increment > 0 ? "green" : "red" }'>${value.increment?.toFixed(2)}</td>
-												<td style='color: ${value.decrement > 0 ? "green" : "red" }'>${value.decrement?.toFixed(5)} %</td>
+												<td style='color: ${value.decrement > 0 ? "green" : "red" }'>${value.decrement?.toFixed(2)} %</td>
 												<td>${value.yesterdayPrice}</td>
-												<td style='color: ${value.changeYesterday > 0 ? "green" : "red" }'>${value.changeYesterday?.toFixed(5)}</td>
-												<td style='color: ${value.changeToday > 0 ? "green" : "red" }'>${value.changeToday?.toFixed(5)}</td>
+												<td style='color: ${value.changeYesterday > 0 ? "green" : "red" }'>${value.changeYesterday?.toFixed(2)}</td>
+												<td style='color: ${value.changeToday > 0 ? "green" : "red" }'>${value.changeToday?.toFixed(2)}</td>
 												</tr>
 												`
 											}).join('')}
