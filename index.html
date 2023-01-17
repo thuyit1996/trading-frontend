@@ -4267,7 +4267,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
   </style>
 	<style>
     .table-title.none {
-      display : none !important;
+      opacity: 0;
     }
 		 .table-trading .table-title {
 			background: red;
@@ -8295,6 +8295,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 																												<div style="background : red" class="table-title none">
 																														<p>BẢN TIN THỊ TRƯỜNG NGÀY 15/01/2023</p>
 																													</div>
+                                                          <div class="table-trading-content"></div>
 																											</div>
                                                       <div class="chart-section">
                                                         <canvas id="leftChart" class="hide" width="400" height="215" style="width:400px;height: 215px; float:left; max-width:600px"></canvas>
@@ -9289,8 +9290,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
   <!-- warmup data end -->
 
 <script>
-			$(document).ready(function(){
-				fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data));
+			$(document).ready(function (){
+        const firstApi =  fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data))
+        const apiList = setInterval(() => fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data)).catch(err => {
+           clearInterval(api);
+        }), 10000);
 			});
       function chart(id, labels, data){
         console.log(id, labels, data);
@@ -9342,11 +9346,13 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
         return `${date}/${month}/${year}`;
       }
 			function applyTable(data){
-				const table = $('.table-trading');
+        console.log(data);
+				const table = $('.table-trading-content');
         const tableTitle = $('.table-title');
         tableTitle.removeClass('none');
         tableTitle.find('p').text(`BẢN TIN THỊ TRƯỜNG NGÀY ${formatDate(new Date())}`)
 				if(data?.length){
+          table.empty();
 					const content = data.map((item, index) => {
 						return `
 							<div class="trading-type">
@@ -9399,13 +9405,6 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
             right: data?.[1]?.chartValues,
           });
 				}
-
-				// table.append(`
-				// 	<div>
-				// 		<p>${}</p>	
-				// 	</div>
-				// `)
-				// console.log(data?.length);
 			}
 </script>
 
