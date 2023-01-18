@@ -8298,8 +8298,14 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
                                                           <div class="table-trading-content"></div>
 																											</div>
                                                       <div class="chart-section">
-                                                        <canvas id="leftChart" class="hide" width="400" height="215" style="width:400px;height: 215px; float:left; max-width:600px"></canvas>
-                                                        <canvas id="rightChart" class="hide" style="width:400px; height: 215px; float:left ;max-width:600px"></canvas>
+                                                        <div style="float:left; padding-bottom: 10px; background: #fff; text-align: center;">
+                                                          <canvas id="leftChart" class="hide" width="400" height="215" style="width:400px;height: 215px; max-width:600px"></canvas>
+                                                          <p style="font-weight: bold; font-size: 1rem;">VNINDEX</p>
+                                                          </div>
+                                                          <div style="float: left; padding-bottom: 10px; background: #fff; text-align: center;">
+                                                            <canvas id="rightChart" class="hide" style="width:400px; height: 215px; max-width:600px"></canvas>
+                                                            <p style="font-weight: bold; font-size: 1rem;">VN30</p>
+                                                            </div>
                                                       </div>
                                                     </div>
                                                     
@@ -9291,9 +9297,9 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 
 <script>
 			$(document).ready(function (){
-        const firstApi =  fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data))
-        const apiList = setInterval(() => fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data)).catch(err => {
-           clearInterval(api);
+        const firstApi =  fetch('http://localhost:3001/trading/data').then(res => res.json()).then((data) => applyTable(data))
+        const apiList = setInterval(() => fetch('http://localhost:3001/trading/data').then(res => res.json()).then((data) => applyTable(data)).catch(err => {
+           clearInterval(apiList);
         }), 10000);
 			});
       function chart(id, labels, data){
@@ -9322,10 +9328,10 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
         });        
       }
       function buildChart({left, right}) {
-        const labelsLeft = left.map(item => item.title);
-        const valueLeft = left.map(item => item.value);
-        const labelsRight = right.map(item => item.title);
-        const valueRight = right.map(item => item.value)
+        const labelsLeft = left.value?.map(item => item.title);
+        const valueLeft = left.value?.map(item => item.value);
+        const labelsRight = right.value?.map(item => item.title);
+        const valueRight = right.value?.map(item => item.value)
         chart('leftChart', labelsLeft, valueLeft);
         chart('rightChart', labelsRight, valueRight);
       }
@@ -9345,15 +9351,17 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 
         return `${date}/${month}/${year}`;
       }
+      function rounded(value, decimals = 2) {
+        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+      } 
 			function applyTable(data){
-        console.log(data);
 				const table = $('.table-trading-content');
         const tableTitle = $('.table-title');
         tableTitle.removeClass('none');
         tableTitle.find('p').text(`BẢN TIN THỊ TRƯỜNG NGÀY ${formatDate(new Date())}`)
-				if(data?.length){
+				if(data?.table?.length){
           table.empty();
-					const content = data.map((item, index) => {
+					const content = data?.table?.map((item, index) => {
 						return `
 							<div class="trading-type">
 								<p>${item.title}</p>	
@@ -9370,22 +9378,22 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 									<tbody>
 										${index === 0 ? item.rows?.data?.map(value => `<tr>
 											 <td>${value.title}</td>
-											 <td>${value.now}</td>
-											 <td style='color: ${value.increment > 0 ? "green" : "red" }'>${value.increment?.toFixed(2)}</td>
-											 <td style='color: ${value.decrement > 0 ? "green" : "red" }'>${value.decrement?.toFixed(2)} %</td>
-											 <td>${value.price}</td>
-											 <td style='color: ${value.gtgd > 0 ? "green" : "red" }'>${value.gtgd?.toFixed(2)}</td>
+											 <td>${rounded(value.now)}</td>
+											 <td style='color: ${value.increment > 0 ? "green" : "red" }'>${value.increment > 0 ? '+' : ''}${rounded(value.increment)}</td>
+											 <td style='color: ${value.decrement > 0 ? "green" : "red" }'>(${rounded(value.decrement)}%)</td>
+											 <td>${Math.round(value.price)}</td>
+											 <td style='color: ${value.gtgd > 0 ? "green" : "red" }'>${value.gtgd > 0 ? '+' : ''}${rounded(value.gtgd)}</td>
 											</tr>`).join('') : `
 											${item.rows?.data?.map(value => {
 												return `
 												<tr>
 												<td>${value.title}</td>
 												<td>${value.now}</td>
-												<td style='color: ${value.increment > 0 ? "green" : "red" }'>${value.increment?.toFixed(2)}</td>
-												<td style='color: ${value.decrement > 0 ? "green" : "red" }'>${value.decrement?.toFixed(2)} %</td>
+												<td style='color: ${value.increment > 0 ? "green" : "red" }'>${value.increment > 0 ? '+' : ''}${rounded(value.increment)}</td>
+												<td style='color: ${value.decrement > 0 ? "green" : "red" }'>(${rounded(value.decrement)}%)</td>
 												<td>${value.yesterdayPrice}</td>
-												<td style='color: ${value.changeYesterday > 0 ? "green" : "red" }'>${value.changeYesterday?.toFixed(2)}</td>
-												<td style='color: ${value.changeToday > 0 ? "green" : "red" }'>${value.changeToday?.toFixed(2)}</td>
+												<td style='color: ${value.changeYesterday > 0 ? "green" : "red" }'>${value.changeYesterday > 0 ? '+' : ''}${rounded(value.changeYesterday)}</td>
+												<td style='color: ${value.changeToday > 0 ? "green" : "red" }'>(${rounded(value.changeToday)}%)</td>
 												</tr>
 												`
 											}).join('')}
@@ -9401,8 +9409,8 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
           leftChart.removeClass('hide');
           rightChart.removeClass('hide');
           buildChart({
-            left: data?.[0]?.chartValues,
-            right: data?.[1]?.chartValues,
+            left: data?.chart?.[0],
+            right: data?.chart?.[1]
           });
 				}
 			}
