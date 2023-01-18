@@ -4266,6 +4266,9 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
     }
   </style>
 	<style>
+    .chart-type.none {
+      opacity: 0;
+    }
     .table-title.none {
       opacity: 0;
     }
@@ -4323,6 +4326,9 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 			border: 1px solid #ffffff;
 		 }
      .chart-section {
+    }
+    .bg-white {
+      background: #ffffff;
     }
      #leftChart,
      #rightChart
@@ -8298,13 +8304,13 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
                                                           <div class="table-trading-content"></div>
 																											</div>
                                                       <div class="chart-section">
-                                                        <div style="float:left; padding-bottom: 10px; background: #fff; text-align: center;">
+                                                        <div style="float:left; padding-bottom: 10px; text-align: center;" class="chart-content">
                                                           <canvas id="leftChart" class="hide" width="400" height="215" style="width:400px;height: 215px; max-width:600px"></canvas>
-                                                          <p style="font-weight: bold; font-size: 1rem;">VNINDEX</p>
+                                                          <p style="font-weight: bold; font-size: 1rem;" class="chart-type none">VNINDEX</p>
                                                           </div>
-                                                          <div style="float: left; padding-bottom: 10px; background: #fff; text-align: center;">
+                                                          <div style="float: left; padding-bottom: 10px; text-align: center;" class="chart-content">
                                                             <canvas id="rightChart" class="hide" style="width:400px; height: 215px; max-width:600px"></canvas>
-                                                            <p style="font-weight: bold; font-size: 1rem;">VN30</p>
+                                                            <p style="font-weight: bold; font-size: 1rem;" class="chart-type none">VN30</p>
                                                             </div>
                                                       </div>
                                                     </div>
@@ -9297,8 +9303,8 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 
 <script>
 			$(document).ready(function (){
-        const firstApi =  fetch('http://localhost:3001/trading/data').then(res => res.json()).then((data) => applyTable(data))
-        const apiList = setInterval(() => fetch('http://localhost:3001/trading/data').then(res => res.json()).then((data) => applyTable(data)).catch(err => {
+        const firstApi =  fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data))
+        const apiList = setInterval(() => fetch('https://trading-api-nu.vercel.app/trading/data').then(res => res.json()).then((data) => applyTable(data)).catch(err => {
            clearInterval(apiList);
         }), 10000);
 			});
@@ -9357,7 +9363,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 			function applyTable(data){
 				const table = $('.table-trading-content');
         const tableTitle = $('.table-title');
+        const chartType = $('.chart-type');
         tableTitle.removeClass('none');
+        chartType.removeClass('none');
+        const chartContent = $(".chart-content")
+        chartContent.addClass('bg-white');
         tableTitle.find('p').text(`BẢN TIN THỊ TRƯỜNG NGÀY ${formatDate(new Date())}`)
 				if(data?.table?.length){
           table.empty();
